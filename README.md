@@ -1,5 +1,6 @@
-## Build the docker image
-docker build -t golang-api .
+To launce application, run 
+$docker-compose up
 
-## Then Run the image with command:
-docker run -p 8080:8000 golang-api
+PgAdmin can be access on url
+http://localhost:5050/browser/#
+

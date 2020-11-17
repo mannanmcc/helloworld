@@ -26,13 +26,11 @@ func GetRates(sourceCurrency string, destinationCurrency string) RateResponse {
 	response, err := http.Get(url)
 
 	if err != nil {
-		log.Fatal("error connrecting remote api")
 		log.Fatal(err)
 	}
 
 	data, dataError := ioutil.ReadAll(response.Body)
 	if dataError != nil {
-		log.Fatal("error reading data from remote api")
 		log.Fatal(err)
 	}
 

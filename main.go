@@ -1,40 +1,26 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 
-	rates "github.com/mannanmcc/helloworld/rates"
+	"github.com/mannanmcc/helloworld/handlers"
+	"github.com/mannanmcc/helloworld/models"
 
 	"github.com/gorilla/mux"
 )
 
-type apiResponse struct {
-	Source      string  `json:"source"`
-	Destination string  `json:"destination"`
-	Rate        float64 `json:"rate"`
-}
-
-func getCurrency(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	sourceCurrency := params["sourceCurrency"]
-	destinationCurrency := params["destinationCurrency"]
-	rateResponse := rates.GetRates(sourceCurrency, destinationCurrency)
-	res := &apiResponse{
-		Source:      sourceCurrency,
-		Destination: destinationCurrency,
-		Rate:        rateResponse.Rates[destinationCurrency],
+func main() {
+	db, err := models.NewDB("host=postgres user=test password=password dbname=fullstack_api port=5432 sslmode=disable")
+	if err != nil {
+		panic(err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
-}
-
-func main() {
+	env := handlers.Env{Db: db}
 	router := mux.NewRouter()
-	router.HandleFunc("/rate/{sourceCurrency}/{destinationCurrency}", getCurrency).Methods("GET")
+
+	router.HandleFunc("/rate/{sourceCurrency}/{destinationCurrency}", env.GetRate).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 }

@@ -8,8 +8,6 @@ import (
 
 	"github.com/mannanmcc/helloworld/handlers"
 	"github.com/mannanmcc/helloworld/models"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -22,9 +20,7 @@ func main() {
 	}
 
 	env := handlers.Env{Db: db}
-	router := mux.NewRouter()
-
-	router.HandleFunc("/rate/{sourceCurrency}/{destinationCurrency}", env.GetRate).Methods("GET")
+	router := handlers.NewRouter(env)
 
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 }

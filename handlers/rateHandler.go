@@ -13,19 +13,27 @@ import (
 	"github.com/mannanmcc/helloworld/redis"
 )
 
-/*
-GetRate retrieve the rate and return
-*/
-func (env *Env) GetRate(w http.ResponseWriter, r *http.Request) {
+type RateHandler struct {
+	RateRepository  *models.RateRepository
+	RedisRepository *redis.RateRedisRepository
+}
+
+func NewRateHandler(rateRepo *models.RateRepository, redisRepo *redis.RateRedisRepository) *RateHandler {
+	return &RateHandler{
+		RateRepository:  rateRepo,
+		RedisRepository: redisRepo,
+	}
+}
+
+func (handler *RateHandler) GetRate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	sourceCurrency := params["sourceCurrency"]
 	destinationCurrency := params["destinationCurrency"]
 
-	redisClient := redis.NewRedis()
-	redisrepo := redis.RateRedisRepository{Client: redisClient}
-	rateInRedis := redisrepo.GetRate(sourceCurrency, destinationCurrency)
+	rateInRedis := handler.RedisRepository.GetRate(sourceCurrency, destinationCurrency)
 
 	var currencyRate float64
+
 	if rateInRedis != "" {
 		currencyRate, _ = strconv.ParseFloat(rateInRedis, 64)
 		log.Println("rate found in in redis" + rateInRedis)
@@ -36,7 +44,7 @@ func (env *Env) GetRate(w http.ResponseWriter, r *http.Request) {
 		currencyRate = rateResponse.Rates[destinationCurrency]
 
 		//store rate in cache
-		redisrepo.SaveRate(sourceCurrency, destinationCurrency, currencyRate)
+		handler.RedisRepository.SaveRate(sourceCurrency, destinationCurrency, currencyRate)
 	}
 
 	res := &apiResponse{
@@ -51,9 +59,7 @@ func (env *Env) GetRate(w http.ResponseWriter, r *http.Request) {
 		Rate:         currencyRate,
 		CreatedOn:    time.Now(),
 	}
-	rateRepository := models.RateRepository{Db: env.Db}
-
-	rateRepository.AddRate(rate)
+	handler.RateRepository.AddRate(rate)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

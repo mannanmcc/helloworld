@@ -9,18 +9,12 @@ import (
 
 const baseURL = "https://api.exchangeratesapi.io/latest?symbols="
 
-/*
-RateResponse give structure of api respinse
-*/
 type RateResponse struct {
 	Base  string             `json:"base,omitempty"`
 	Date  string             `json:"date,omitempty"`
 	Rates map[string]float64 `json:"rates,omitempty"`
 }
 
-/**
-GetRates return rates from api
-*/
 func GetRates(sourceCurrency string, destinationCurrency string) RateResponse {
 	url := baseURL + destinationCurrency + "&base=" + sourceCurrency
 	response, err := http.Get(url)

@@ -1,26 +1,28 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-
+	"github.com/mannanmcc/helloworld/config"
 	"github.com/mannanmcc/helloworld/handlers"
 	"github.com/mannanmcc/helloworld/models"
+	"github.com/mannanmcc/helloworld/redis"
 )
 
 func main() {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
+	config := config.NewConfig()
 
-	db, err := models.NewDB(dsn)
+	db, err := models.NewDB(config)
 	if err != nil {
 		panic(err)
 	}
 
-	env := handlers.Env{Db: db}
-	router := handlers.NewRouter(env)
+	repo := models.NewRateRepository(db)
 
-	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
+	redisClient := redis.NewRedis()
+	redisrepo := redis.NewRateRedisRepository(redisClient)
+
+	rateHandler := handlers.NewRateHandler(repo, redisrepo)
+
+	server := newServer(config)
+	router := handlers.NewRouter(rateHandler)
+	server.Run(router)
 }

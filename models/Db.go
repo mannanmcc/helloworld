@@ -1,18 +1,18 @@
 package models
 
 import (
-	"log"
+	"fmt"
 
+	"github.com/mannanmcc/helloworld/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-/*
-NewDB create a database instance and return to the caller
-*/
-func NewDB(dataSourceName string) (*gorm.DB, error) {
-	log.Println("datasource name ", dataSourceName)
-	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
+func NewDB(config *config.Config) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		config.Database.Host, config.Database.User, config.Database.Password, config.Database.Dbname, config.Database.Port)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		return nil, err

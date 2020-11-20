@@ -10,9 +10,12 @@ type RateRepository struct {
 	Db *gorm.DB
 }
 
-/*
-AddRate - add rate to the database
-*/
+func NewRateRepository(db *gorm.DB) *RateRepository {
+	return &RateRepository{
+		Db: db,
+	}
+}
+
 func (rateRepository *RateRepository) AddRate(rate Rate) (int, error) {
 	rateRepository.Db.Save(&rate)
 

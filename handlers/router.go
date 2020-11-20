@@ -1,15 +1,14 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 )
 
-/*
-NewRouter define all the routes
-*/
-func NewRouter(env Env) *mux.Router {
+func NewRouter(rateHandler *RateHandler) http.Handler {
 	router := mux.NewRouter()
-	router.HandleFunc("/rate/{sourceCurrency}/{destinationCurrency}", env.GetRate).Methods("GET")
+	router.HandleFunc("/rate/{sourceCurrency}/{destinationCurrency}", rateHandler.GetRate).Methods("GET")
 
 	return router
 }

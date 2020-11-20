@@ -1,28 +1,38 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/mannanmcc/helloworld/config"
 	"github.com/mannanmcc/helloworld/handlers"
 	"github.com/mannanmcc/helloworld/models"
 	"github.com/mannanmcc/helloworld/redis"
+	"go.uber.org/dig"
 )
 
-func main() {
-	config := config.NewConfig()
+func BuildContainer() *dig.Container {
+	container := dig.New()
 
-	db, err := models.NewDB(config)
+	container.Provide(config.NewConfig)
+	container.Provide(models.NewDB)
+	container.Provide(models.NewRateRepository)
+	container.Provide(redis.NewRedis)
+	container.Provide(redis.NewRateRedisRepository)
+	container.Provide(handlers.NewRateHandler)
+	container.Provide(newServer)
+	container.Provide(handlers.NewRouter)
+
+	return container
+}
+
+func main() {
+	container := BuildContainer()
+
+	err := container.Invoke(func(server *Server, rateHandler http.Handler) {
+		server.Run(rateHandler)
+	})
+
 	if err != nil {
 		panic(err)
 	}
-
-	repo := models.NewRateRepository(db)
-
-	redisClient := redis.NewRedis()
-	redisrepo := redis.NewRateRedisRepository(redisClient)
-
-	rateHandler := handlers.NewRateHandler(repo, redisrepo)
-
-	server := newServer(config)
-	router := handlers.NewRouter(rateHandler)
-	server.Run(router)
 }

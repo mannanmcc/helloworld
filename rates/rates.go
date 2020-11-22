@@ -15,9 +15,20 @@ type RateResponse struct {
 	Rates map[string]float64 `json:"rates,omitempty"`
 }
 
-func GetRates(sourceCurrency string, destinationCurrency string) RateResponse {
+type RateClient struct {
+	Client *http.Client
+}
+
+// NewRateClient create a new
+func NewRateClient() *RateClient {
+	return &RateClient{
+		Client: &http.Client{},
+	}
+}
+
+func (rateClient *RateClient) GetRates(sourceCurrency string, destinationCurrency string) RateResponse {
 	url := baseURL + destinationCurrency + "&base=" + sourceCurrency
-	response, err := http.Get(url)
+	response, err := rateClient.Client.Get(url)
 
 	if err != nil {
 		log.Fatal(err)

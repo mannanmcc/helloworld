@@ -2,50 +2,34 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mannanmcc/helloworld/models"
-	"github.com/mannanmcc/helloworld/rates"
-	"github.com/mannanmcc/helloworld/redis"
 )
 
+// RateHandler handle the getrate and book trade request
 type RateHandler struct {
-	RateRepository  *models.RateRepository
-	RedisRepository *redis.RateRedisRepository
+	RateRepository *models.RateRepository
+	RateProvider   *RateProvider
 }
 
-func NewRateHandler(rateRepo *models.RateRepository, redisRepo *redis.RateRedisRepository) *RateHandler {
+// NewRateHandler provide handler
+func NewRateHandler(rateRepo *models.RateRepository, rateProvider *RateProvider) *RateHandler {
 	return &RateHandler{
-		RateRepository:  rateRepo,
-		RedisRepository: redisRepo,
+		RateRepository: rateRepo,
+		RateProvider:   rateProvider,
 	}
 }
 
+// GetRate handle the getrate request
 func (handler *RateHandler) GetRate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	sourceCurrency := params["sourceCurrency"]
 	destinationCurrency := params["destinationCurrency"]
 
-	rateInRedis := handler.RedisRepository.GetRate(sourceCurrency, destinationCurrency)
-
-	var currencyRate float64
-
-	if rateInRedis != "" {
-		currencyRate, _ = strconv.ParseFloat(rateInRedis, 64)
-		log.Println("rate found in in redis" + rateInRedis)
-	} else {
-		log.Println("rate not found in in redis")
-		//get rate from remote api
-		rateResponse := rates.GetRates(sourceCurrency, destinationCurrency)
-		currencyRate = rateResponse.Rates[destinationCurrency]
-
-		//store rate in cache
-		handler.RedisRepository.SaveRate(sourceCurrency, destinationCurrency, currencyRate)
-	}
+	currencyRate := handler.RateProvider.getRate(sourceCurrency, destinationCurrency)
 
 	res := &apiResponse{
 		Source:      sourceCurrency,

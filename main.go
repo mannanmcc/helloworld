@@ -6,10 +6,12 @@ import (
 	"github.com/mannanmcc/helloworld/config"
 	"github.com/mannanmcc/helloworld/handlers"
 	"github.com/mannanmcc/helloworld/models"
+	"github.com/mannanmcc/helloworld/rates"
 	"github.com/mannanmcc/helloworld/redis"
 	"go.uber.org/dig"
 )
 
+// BuildContainer builds the whole dependancy container
 func BuildContainer() *dig.Container {
 	container := dig.New()
 
@@ -18,6 +20,8 @@ func BuildContainer() *dig.Container {
 	container.Provide(models.NewRateRepository)
 	container.Provide(redis.NewRedis)
 	container.Provide(redis.NewRateRedisRepository)
+	container.Provide(rates.NewRateClient)
+	container.Provide(handlers.NewRateProvider)
 	container.Provide(handlers.NewRateHandler)
 	container.Provide(newServer)
 	container.Provide(handlers.NewRouter)

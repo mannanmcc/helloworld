@@ -22,7 +22,8 @@ func NewRateProvider(rateRedis *redis.RateRedisRepository, rateClient *rates.Rat
 	}
 }
 
-func (rateProder *RateProvider) getRate(sourceCurrency string, destinationCurrency string) float64 {
+// GetRate provide rates
+func (rateProder *RateProvider) GetRate(sourceCurrency string, destinationCurrency string) float64 {
 	rateInRedis := rateProder.RateRedis.GetRate(sourceCurrency, destinationCurrency)
 
 	var currencyRate float64

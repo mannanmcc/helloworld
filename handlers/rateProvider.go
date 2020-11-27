@@ -34,7 +34,7 @@ func (rateProder *RateProvider) GetRate(sourceCurrency string, destinationCurren
 	} else {
 		log.Println("rate not found in in redis")
 		//get rate from remote api
-		rateResponse := rateProder.RateClient.GetRates(sourceCurrency, destinationCurrency)
+		rateResponse := rateProder.RateClient.GetRate(sourceCurrency, destinationCurrency)
 		currencyRate = rateResponse.Rates[destinationCurrency]
 
 		//store rate in cache

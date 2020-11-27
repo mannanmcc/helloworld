@@ -7,26 +7,30 @@ import (
 	"net/http"
 )
 
-const baseURL string = "https://api.exchangeratesapi.io/latest?symbols="
-
 type RateResponse struct {
 	Base  string             `json:"base,omitempty"`
 	Date  string             `json:"date,omitempty"`
 	Rates map[string]float64 `json:"rates,omitempty"`
 }
 
-type RateClient struct {
-	Client *http.Client
+type HttpClient interface {
+	Get(url string) (resp *http.Response, err error)
 }
 
-func NewRateClient() *RateClient {
+type RateClient struct {
+	Client  HttpClient
+	baseURL string
+}
+
+func NewRateClient(url string) *RateClient {
 	return &RateClient{
-		Client: &http.Client{},
+		Client:  &http.Client{},
+		baseURL: url,
 	}
 }
 
 func (rateClient *RateClient) GetRate(sourceCurrency string, destinationCurrency string) RateResponse {
-	url := baseURL + destinationCurrency + "&base=" + sourceCurrency
+	url := rateClient.baseURL + destinationCurrency + "&base=" + sourceCurrency
 	response, err := rateClient.Client.Get(url)
 
 	if err != nil {

@@ -10,13 +10,11 @@ import (
 	"github.com/mannanmcc/helloworld/models"
 )
 
-// RateHandler handle the getrate and book trade request
 type RateHandler struct {
 	RateRepository *models.RateRepository
 	RateProvider   *RateProvider
 }
 
-// Response represent the structure of response
 type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -29,7 +27,6 @@ type PostData struct {
 	TradeDate           time.Time
 }
 
-// JSONResponse create json response and send to the client
 func JSONResponse(status int, msg string, w http.ResponseWriter) {
 	response := Response{
 		Message: msg,
@@ -39,7 +36,6 @@ func JSONResponse(status int, msg string, w http.ResponseWriter) {
 	w.Write(resp)
 }
 
-// NewRateHandler provide handler
 func NewRateHandler(rateRepo *models.RateRepository, rateProvider *RateProvider) *RateHandler {
 	return &RateHandler{
 		RateRepository: rateRepo,
@@ -47,7 +43,6 @@ func NewRateHandler(rateRepo *models.RateRepository, rateProvider *RateProvider)
 	}
 }
 
-// BookTrade - handle booking rate
 func (handler *RateHandler) BookTrade(w http.ResponseWriter, r *http.Request) {
 	var err error
 	decoder := json.NewDecoder(r.Body)
@@ -101,7 +96,6 @@ func checkIfTradeIsWithinNextThreeDays(tradeDate time.Time) bool {
 	return true
 }
 
-// GetRate handle the getrate request
 func (handler *RateHandler) GetRate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	sourceCurrency := params["sourceCurrency"]

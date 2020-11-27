@@ -11,6 +11,8 @@ import (
 	"go.uber.org/dig"
 )
 
+const baseURL string = "https://api.exchangeratesapi.io/latest?symbols="
+
 // BuildContainer builds the whole dependancy container
 func BuildContainer() *dig.Container {
 	container := dig.New()
@@ -20,7 +22,7 @@ func BuildContainer() *dig.Container {
 	container.Provide(models.NewRateRepository)
 	container.Provide(redis.NewRedis)
 	container.Provide(redis.NewRateRedisRepository)
-	container.Provide(rates.NewRateClient)
+	container.Provide(rates.NewRateClient(baseURL))
 	container.Provide(handlers.NewRateProvider)
 	container.Provide(handlers.NewRateHandler)
 	container.Provide(newServer)

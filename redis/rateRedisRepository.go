@@ -6,11 +6,6 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-type RateRedisRepositoryInterface interface {
-	saveRate(sourceCurrency string, destinationCurrency string, rate string) error
-	getRate(sourceCurrency string, destinationCurrency string) string
-}
-
 type RateRedisRepository struct {
 	Client redis.Conn
 }

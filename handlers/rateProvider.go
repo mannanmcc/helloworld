@@ -8,13 +8,11 @@ import (
 	"github.com/mannanmcc/helloworld/redis"
 )
 
-// RateProvider represent RateProvder that provides rate
 type RateProvider struct {
 	RateRedis  *redis.RateRedisRepository
 	RateClient *rates.RateClient
 }
 
-// NewRateProvider return an instance of RateProvider
 func NewRateProvider(rateRedis *redis.RateRedisRepository, rateClient *rates.RateClient) *RateProvider {
 	return &RateProvider{
 		RateRedis:  rateRedis,
@@ -22,7 +20,6 @@ func NewRateProvider(rateRedis *redis.RateRedisRepository, rateClient *rates.Rat
 	}
 }
 
-// GetRate provide rates
 func (rateProder *RateProvider) GetRate(sourceCurrency string, destinationCurrency string) float64 {
 	rateInRedis := rateProder.RateRedis.GetRate(sourceCurrency, destinationCurrency)
 

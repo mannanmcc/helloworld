@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 type RateResponse struct {
@@ -18,19 +19,17 @@ type HttpClient interface {
 }
 
 type RateClient struct {
-	Client  HttpClient
-	baseURL string
+	Client HttpClient
 }
 
-func NewRateClient(url string) *RateClient {
+func NewRateClient() *RateClient {
 	return &RateClient{
-		Client:  &http.Client{},
-		baseURL: url,
+		Client: &http.Client{},
 	}
 }
 
-func (rateClient *RateClient) GetRate(sourceCurrency string, destinationCurrency string) RateResponse {
-	url := rateClient.baseURL + destinationCurrency + "&base=" + sourceCurrency
+func (rateClient *RateClient) GetRate(sourceCurrency, destinationCurrency string) RateResponse {
+	url := os.Getenv("RATE_API_BASE_URL") + destinationCurrency + "&base=" + sourceCurrency
 	response, err := rateClient.Client.Get(url)
 
 	if err != nil {

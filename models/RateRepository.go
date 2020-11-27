@@ -2,10 +2,6 @@ package models
 
 import "gorm.io/gorm"
 
-type RateRepositoryInterface interface {
-	AddRate(rate Rate) (int, error)
-}
-
 type RateRepository struct {
 	Db *gorm.DB
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -17,14 +18,13 @@ func TestHttpClientCanRetrieveRateAndParse(t *testing.T) {
 	defer mockController.Finish()
 	mockedHttpClient := mock_rates.NewMockHttpClient(mockController)
 
-	baseUrl := "/api/url"
 	sourceCurrency := "USD"
 	destinationCurrency := "GBP"
 	rate := 1.3351434438
-	apiEndPointFullUrl := baseUrl + destinationCurrency + "&base=" + sourceCurrency
+	apiEndPointFullUrl := os.Getenv("RATE_API_BASE_URL") + destinationCurrency + "&base=" + sourceCurrency
 	mockedHttpClient.EXPECT().Get(apiEndPointFullUrl).Return(getMockedResponse(rate, sourceCurrency, destinationCurrency))
 
-	RateClient := &RateClient{Client: mockedHttpClient, baseURL: baseUrl}
+	RateClient := &RateClient{Client: mockedHttpClient}
 	actualRate := RateClient.GetRate(sourceCurrency, destinationCurrency)
 
 	assert.Equal(t, actualRate.Base, destinationCurrency)
